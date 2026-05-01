@@ -24,15 +24,6 @@ function sanitizeField(value: string): string {
   return out;
 }
 
-function xmlEscape(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
 function runCommand(cmd: string, args: string[]): boolean {
   const result = spawnSync(cmd, args, { stdio: "ignore" });
   return result.status === 0;

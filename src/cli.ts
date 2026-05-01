@@ -440,25 +440,33 @@ function parseGraceSeconds(
   let value = DefaultGraceSeconds;
   let explicit = false;
 
-  for (const arg of args) {
-    const m = arg.match(/^--grace-seconds(?:=(.+))?$/);
-    if (m) {
-      const raw = m[1] ?? args[args.indexOf(arg) + 1];
-      if (raw === undefined) {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!;
+    let raw: string | undefined;
+
+    if (arg.startsWith("--grace-seconds=")) {
+      raw = arg.slice("--grace-seconds=".length);
+    } else if (arg === "--grace-seconds") {
+      raw = args[i + 1];
+      if (raw === undefined || raw.startsWith("-")) {
         errFn("git-real: --grace-seconds requires a value");
         throw new Error("--grace-seconds requires a value");
       }
-      const n = parseInt(raw, 10);
-      if (isNaN(n)) {
-        errFn(`git-real: invalid --grace-seconds value: ${raw}`);
-        throw new Error(`invalid --grace-seconds value: ${raw}`);
-      }
-      value = normalizeGraceSeconds(n);
-      explicit = true;
+      i++; // consume next arg
     } else if (!arg.startsWith("-")) {
       errFn(`git-real: unexpected arguments: ${args.filter((a) => !a.startsWith("-")).join(" ")}`);
       throw new Error(`unexpected arguments: ${arg}`);
+    } else {
+      continue;
     }
+
+    const n = parseInt(raw, 10);
+    if (isNaN(n)) {
+      errFn(`git-real: invalid --grace-seconds value: ${raw}`);
+      throw new Error(`invalid --grace-seconds value: ${raw}`);
+    }
+    value = normalizeGraceSeconds(n);
+    explicit = true;
   }
 
   return { value, explicit };

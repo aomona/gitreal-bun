@@ -251,13 +251,23 @@ describe("App – once", () => {
     expect(repo.resetRefs).toContain("@{u}");
   });
 
-  it("respects --grace-seconds flag", async () => {
+  it("respects --grace-seconds flag (= form)", async () => {
     const repo = makeRepo({
       boolValues: { "gitreal.enabled": true },
       aheadCount: 0,
     });
     const { app, signal } = makeApp(repo);
     const code = await app.run(signal, ["once", "--grace-seconds=60"]);
+    expect(code).toBe(0);
+  });
+
+  it("respects --grace-seconds flag (space form)", async () => {
+    const repo = makeRepo({
+      boolValues: { "gitreal.enabled": true },
+      aheadCount: 0,
+    });
+    const { app, signal } = makeApp(repo);
+    const code = await app.run(signal, ["once", "--grace-seconds", "60"]);
     expect(code).toBe(0);
   });
 });
